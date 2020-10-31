@@ -8,6 +8,13 @@ const client = new Client({
   // we need to use partials for data that isn't cached (eg adding roles and keeping those roles)
   partials: ["MESSAGE", "REACTION"],
 });
+
+// webhook needs to be created in Discord first and added to .env file
+const webhookClient = new WebhookClient(
+  process.env.WEBHOOK_ID,
+  process.env.WEBHOOK_TOKEN
+);
+
 // can be any symbol other than "$"" but don't use a reserved symbol on Discord such as "@"
 const PREFIX = "$";
 
@@ -64,6 +71,11 @@ client.on("message", async (message) => {
           "Error, bot either lacks permissions or the user was not found"
         );
       }
+    } else if (CMD_NAME === "announce") {
+      console.log(args);
+      const msg = args.join(" ");
+      console.log(msg);
+      webhookClient.send(msg);
     }
   }
 });
@@ -85,6 +97,28 @@ client.on("messageReactionAdd", (reaction, user) => {
         break;
       case "🍑":
         member.roles.add("738664590178779167");
+        break;
+    }
+  }
+});
+
+// remove roles
+client.on("messageReactionRemove", (reaction, user) => {
+  const { name } = reaction.emoji;
+  const member = reaction.message.guild.members.cache.get(user.id);
+  if (reaction.message.id === "738666523408990258") {
+    switch (name) {
+      case "🍎":
+        member.roles.remove("738664659103776818");
+        break;
+      case "🍌":
+        member.roles.remove("738664632838782998");
+        break;
+      case "🍇":
+        member.roles.remove("738664618511171634");
+        break;
+      case "🍑":
+        member.roles.remove("738664590178779167");
         break;
     }
   }
